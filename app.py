@@ -148,7 +148,7 @@ else:
         st.write("Hãy chọn phương án phản ánh chính xác nhất xu hướng hành vi thực tế của bạn:")
         
         if client and not st.session_state.ai_questions:
-            with st.spinner("AI đang thiết lập bộ câu hỏi tình huống thực tế dành riêng cho bạn..."):
+            with st.spinner("AI đang thiết lập bộ câu hỏi tình huống ngẫu nhiên dành riêng cho bạn..."):
                 prompt = f"""
                 Tạo 3 câu hỏi trắc nghiệm tình huống thực tế khác nhau để đo lường cụ thể mức độ của chỉ số {current_name}. 
                 Trả về kết quả dưới dạng cấu trúc JSON chính xác là một danh sách các đối tượng, mỗi đối tượng gồm:
@@ -200,11 +200,10 @@ else:
         score = st.session_state.get('total_score', 0)
         max_score = st.session_state.get('max_score', 15)
         
-        # Biểu đồ Gauge Chart đã được cấu hình đóng ngoặc chuẩn xác tuyệt đối
+        # Biểu đồ Gauge phiên bản mới bảo mật: Loại bỏ thuộc tính 'domain' lỗi cú pháp
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
             value = score,
-            domain = {'x':, 'y': [0, 1]},
             title = {'text': f"Thang điểm định vị {current_key} Index", 'font': {'size': 18}},
             gauge = {
                 'axis': {'range': [0, max_score], 'tickwidth': 1},
@@ -212,3 +211,4 @@ else:
                 'bgcolor': "white",
                 'borderwidth': 2,
                 'bordercolor': "gray",
+                'steps': [
