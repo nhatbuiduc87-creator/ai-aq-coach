@@ -1,7 +1,6 @@
 import streamlit as st
 import json
 from google import genai
-from google.genai import types
 import plotly.graph_objects as go
 
 # Cấu hình trang web công khai
@@ -31,26 +30,28 @@ if 'ai_advice' not in st.session_state:
 st.title("🧠 AI AQ Coach - Phát Triển Năng Lực Thích Ứng")
 st.write("---")
 
-# Hàm gọi AI sử dụng cấu trúc Interactions API mới nhất của Google
+# Hàm gọi AI sử dụng cấu trúc Interactions API chuẩn xác mới nhất
 def generate_ai_content(prompt, json_mode=False):
     if not client:
         return None
     try:
-        # Cấu hình trả về định dạng
-        config = types.GenerateContentConfig(
-            response_mime_type="application/json" if json_mode else "text/plain",
-            temperature=0.7
-        )
-        # Sử dụng API tương tác mới: client.interactions.create thay vì client.models.generate_content
+        # Cấu hình thế hệ mới: Truyền trực tiếp vào generation_config dưới dạng dictionary
+        gen_config = {
+            "temperature": 0.7
+        }
+        if json_mode:
+            gen_config["response_mime_type"] = "application/json"
+            
+        # Sử dụng API tương tác mới theo đúng tài liệu chuẩn của Google
         interaction = client.interactions.create(
             model='gemini-2.5-flash',
             input=prompt,
-            config=config
+            generation_config=gen_config
         )
-        # Trả về kết quả đầu ra dạng văn bản
+        # Trả về kết quả đầu ra dạng văn bản từ thuộc tính output_text
         return interaction.output_text
     except Exception as e:
-        st.error(f"Lỗi kết nối API mới: {e}")
+        st.error(f"Lỗi kết nối API: {e}")
         return None
 
 # ==========================================================
@@ -136,10 +137,8 @@ elif st.session_state.current_step == 3:
     score = st.session_state.get('total_score', 0)
     max_score = st.session_state.get('max_score', 15)
     
-    # Định nghĩa vùng hiển thị biểu đồ đồng hồ tốc độ an toàn
-    x_range = [0, 1]
-    y_range = [0, 1]
-    chart_domain = dict(x=x_range, y=y_range)
+    # Thiết lập vùng hiển thị biểu đồ an toàn tách biệt hoàn toàn dạng dictionary
+    chart_domain = {"x": [0, 1], "y": [0, 1]}
     
     # Tạo biểu đồ Gauge Chart trực quan hiển thị kết quả điểm số
     fig = go.Figure(go.Indicator(
