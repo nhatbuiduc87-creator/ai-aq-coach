@@ -1,7 +1,6 @@
 import streamlit as st
 import json
 from google import genai
-import plotly.graph_objects as go
 
 # Cấu hình trang web rộng rãi, trực quan
 st.set_page_config(page_title="Hệ Thống Đánh Giá Năng Lực Toàn Diện A-Z", page_icon="🏆", layout="centered")
@@ -79,14 +78,14 @@ def generate_ai_content(prompt, json_mode=False):
         return None
 
 # ==========================================================
-# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỈ SỐ HOÀN THIỆN
+# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỬ CÁI TỪ A ĐẾN Z
 # ==========================================================
 if st.session_state.selected_key is None:
     st.title("🏆 Trung Tâm Đánh Giá Toàn Diện 26 Chỉ Số Năng Lực")
     st.write("Chọn một chỉ số bất kỳ bên dưới để khám phá lý thuyết và làm bài đánh giá cá nhân hóa từ AI:")
     st.write("")
 
-    # Sắp xếp 26 ô vuông theo dạng lưới (Mỗi hàng chứa tối đa 4 ô để hiển thị chữ rõ hơn)
+    # Sắp xếp 26 ô vuông theo dạng lưới (Mỗi hàng chứa 4 ô vuông)
     num_columns = 4
     keys_list = list(INDICATORS.keys())
     
@@ -97,33 +96,33 @@ if st.session_state.selected_key is None:
             if item_idx < len(keys_list):
                 key = keys_list[item_idx]
                 
-                # Hiển thị nút bấm cho từng chỉ số
+                # Tạo nút bấm cho từng ô chữ cái
                 with cols[col_idx]:
                     if st.button(f"✨ Chỉ Số {key}\n\n{key} Index", use_container_width=True):
                         st.session_state.selected_key = key
-                        st.session_state.current_step = 1 # Reset về bước 1 cho chỉ số mới
-                        st.session_state.ai_intro = ""    # Xóa dữ liệu cũ
+                        st.session_state.current_step = 1 # Đưa về bước 1
+                        st.session_state.ai_intro = ""    # Reset dữ liệu cũ
                         st.session_state.ai_questions = []
                         st.session_state.ai_advice = ""
                         st.rerun()
 
 # ==========================================================
-# LUỒNG XỬ LÝ ĐỘNG CHO CHỈ SỐ ĐƯỢC CHỌN
+# LUỒNG HÌNH ĐỘNG KHI NGƯỜI DÙNG BẤM VÀO MỘT CHỈ SỐ
 # ==========================================================
 else:
     current_key = st.session_state.selected_key
     current_name = INDICATORS[current_key]
     
-    st.title(f"📊 Hệ Thống Phân Tích Chỉ Số: {current_name}")
+    st.title(f"📊 Hệ Thống Phân Tích: {current_name}")
     
-    # Nút quay về màn hình lưới chính
-    if st.button("⬅️ Quay lại Menu 26 Chỉ Số", use_container_width=False):
+    # Nút bấm quay lại bảng lưới 26 ô chính
+    if st.button("⬅️ Quay lại Danh Mục 26 Chỉ Số", use_container_width=False):
         st.session_state.selected_key = None
         st.rerun()
         
     st.write("---")
 
-    # --- BƯỚC 1: TỔNG QUAN & BIỂU HIỆN ĐỘNG THEO CHỈ SỐ ---
+    # --- BƯỚC 1: TỔNG QUAN & BIỂU HIỆN CHỈ SỐ ---
     if st.session_state.current_step == 1:
         st.header(f"📘 Bước 1: Tổng Quan & Biểu Hiện Của {current_key} Index")
         
@@ -142,7 +141,7 @@ else:
             st.session_state.current_step = 2
             st.rerun()
 
-    # --- BƯỚC 2: BÀI TRẮC NGHIỆM ĐỘNG THEO CHỈ SỐ ---
+    # --- BƯỚC 2: BÀI TRẮC NGHIỆM ĐỘNG DO AI THIẾT KẾ ---
     elif st.session_state.current_step == 2:
         st.header(f"📝 Bước 2: Bài Đánh Giá Trắc Nghiệm {current_key} Index")
         st.write("Hãy chọn phương án phản ánh chính xác nhất xu hướng hành vi thực tế của bạn:")
@@ -193,22 +192,21 @@ else:
                 st.session_state.current_step = 3
                 st.rerun()
 
-    # --- BƯỚC 3: GIẢI PHÁP CẢI THIỆN ĐỘNG & BIỂU ĐỒ ---
+    # --- BƯỚC 3: HIỂN THỊ ĐIỂM SỐ VÀ PHƯƠNG ÁN CẢI THIỆN ---
     elif st.session_state.current_step == 3:
-        st.header("🎯 Bước 3: Phân Tích Kết Quả & Chiến Lược Cải Thiện")
+        st.header("🎯 Bước 3: Kết Quả Định Vị Năng Lực & Kế Hoạch Cải Thiện")
         
         score = st.session_state.get('total_score', 0)
         max_score = st.session_state.get('max_score', 15)
         
-        # Biểu đồ Gauge phiên bản mới bảo mật: Loại bỏ thuộc tính 'domain' lỗi cú pháp
-        fig = go.Figure(go.Indicator(
-            mode = "gauge+number",
-            value = score,
-            title = {'text': f"Thang điểm định vị {current_key} Index", 'font': {'size': 18}},
-            gauge = {
-                'axis': {'range': [0, max_score], 'tickwidth': 1},
-                'bar': {'color': "#1f77b4"},
-                'bgcolor': "white",
-                'borderwidth': 2,
-                'bordercolor': "gray",
-                'steps': [
+        # Thống kê điểm số cơ bản sạch sẽ, trực quan
+        st.metric(label=f"Tổng điểm {current_key} Index của bạn", value=f"{score} / {max_score}")
+        
+        # Tính toán tỷ lệ phần trăm để nạp vào thanh tiến trình (Progress Bar)
+        progress_ratio = float(score) / float(max_score)
+        st.progress(progress_ratio)
+        
+        # Phân loại vùng điểm bằng Alert Boxes có sẵn của Streamlit
+        if score <= (max_score * 0.4):
+            st.error(f"⚠️ Xếp loại: Mức độ {current_key} Index cơ bản (Cần chú trọng nâng cấp)")
+        elif score <= (max_score * 0.8):
