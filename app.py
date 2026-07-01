@@ -18,32 +18,32 @@ else:
 
 # Định nghĩa danh mục chuẩn 26 chỉ số từ A đến Z của bạn
 INDICATORS = {
-    "A": "Adaptability (Khả năng Thích ứng)",
-    "B": "Body (Năng lực Thể chất & Sức khỏe)",
-    "C": "Creativity (Khả năng Sáng tạo)",
-    "D": "Digital (Năng lực Số & Công nghệ số)",
-    "E": "Emotional (Trí tuệ Cảm xúc - EQ)",
-    "F": "Financial (Thông minh Tài chính - FQ)",
-    "G": "Gold (Tư duy Đặt mục tiêu & Giá trị cốt lõi)",
-    "H": "Happiness (Chỉ số Hạnh phúc - HQ)",
-    "I": "Intelligence (Trí thông minh - IQ)",
-    "J": "Judgment (Năng lực Phán đoán & Ra quyết định)",
-    "K": "Kindness (Trí tuệ Trắc ẩn & Lòng tốt)",
-    "L": "Leadership (Năng lực Lãnh đạo)",
-    "M": "Moral (Chỉ số Đạo đức - MQ)",
-    "N": "Network (Năng lực Xây dựng Mối quan hệ)",
-    "O": "Organization (Kỹ năng Tổ chức & Quản lý)",
-    "P": "Passion (Chỉ số Đam mê & Nhiệt huyết)",
-    "Q": "Quantum (Tư duy Đột phá & Nhảy vọt)",
-    "R": "Resilience (Năng lực Vượt khó & Kiên cường - AQ)",
-    "S": "Spiritual (Trí thông minh Tâm linh - SQ)",
-    "T": "Tech (Năng lực Công nghệ & Kỹ thuật)",
-    "U": "Understanding (Năng lực Thấu hiểu & Đồng cảm)",
-    "V": "Vision (Tư duy Tầm nhìn & Chiến lược)",
-    "W": "Willpower (Sức mạnh Ý chí & Nghị lực)",
-    "X": "Xenophilia (Lòng hiếu khách & Cởi mở với văn hóa mới)",
-    "Y": "Youthfulness (Tư duy Tươi trẻ & Đổi mới)",
-    "Z": "Zeal (Sự Hăng hái & Lòng nhiệt thành)"
+    "A": "Adaptability",
+    "B": "Body",
+    "C": "Creativity",
+    "D": "Digital",
+    "E": "Emotional",
+    "F": "Financial",
+    "G": "Gold",
+    "H": "Happiness",
+    "I": "Intelligence",
+    "J": "Judgment",
+    "K": "Kindness",
+    "L": "Leadership",
+    "M": "Moral",
+    "N": "Network",
+    "O": "Organization",
+    "P": "Passion",
+    "Q": "Quantum",
+    "R": "Resilience",
+    "S": "Spiritual",
+    "T": "Tech",
+    "U": "Understanding",
+    "V": "Vision",
+    "W": "Willpower",
+    "X": "Xenophilia",
+    "Y": "Youthfulness",
+    "Z": "Zeal"
 }
 
 # Khởi tạo trạng thái ứng dụng (Quản lý dữ liệu động)
@@ -78,15 +78,15 @@ def generate_ai_content(prompt, json_mode=False):
         return None
 
 # ==========================================================
-# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỮ CÁI TỪ A ĐẾN Z
+# GIAO DIỆN CHÍNH: LƯỚI 26 Ô HIỂN THỊ ĐẦY ĐỦ TÊN CHỈ SỐ
 # ==========================================================
 if st.session_state.selected_key is None:
     st.title("🏆 Trung Tâm Đánh Giá Toàn Diện 26 Chỉ Số Năng Lực")
     st.write("Chọn một chỉ số bất kỳ bên dưới để khám phá lý thuyết và làm bài đánh giá cá nhân hóa từ AI:")
     st.write("")
 
-    # Sắp xếp 26 ô vuông theo dạng lưới (Mỗi hàng chứa 4 ô vuông)
-    num_columns = 4
+    # Chia lưới thành 2 cột lớn để hiển thị trọn vẹn tên tiếng Anh của chỉ số [2]
+    num_columns = 2
     keys_list = list(INDICATORS.keys())
     
     for row_idx in range(0, len(keys_list), num_columns):
@@ -95,10 +95,13 @@ if st.session_state.selected_key is None:
             item_idx = row_idx + col_idx
             if item_idx < len(keys_list):
                 key = keys_list[item_idx]
+                english_name = INDICATORS[key]
                 
-                # Tạo nút bấm cho từng ô chữ cái
+                # Nút bấm hiển thị định dạng: "A (Adaptability)"
+                button_label = f"✨ Chỉ Số {key} ({english_name})"
+                
                 with cols[col_idx]:
-                    if st.button(f"✨ Chỉ Số {key}\n\n{key} Index", use_container_width=True):
+                    if st.button(button_label, use_container_width=True):
                         st.session_state.selected_key = key
                         st.session_state.current_step = 1 
                         st.session_state.ai_intro = ""    
@@ -107,13 +110,13 @@ if st.session_state.selected_key is None:
                         st.rerun()
 
 # ==========================================================
-# LUỒNG HÌNH ĐỘNG KHI NGƯỜI DÙNG BẤM VÀO MỘT CHỈ SỐ
+# LUỒNG TRẢI NGHIỆM ĐỘNG KHI NGƯỜI DÙNG BẤM VÀO MỘT CHỈ SỐ
 # ==========================================================
 else:
     current_key = st.session_state.selected_key
     current_name = INDICATORS[current_key]
     
-    st.title(f"📊 Hệ Thống Phân Tích: {current_name}")
+    st.title(f"📊 Hệ Thống Phân Tích: {current_key} ({current_name})")
     
     # Nút bấm quay lại bảng lưới 26 ô chính
     if st.button("⬅️ Quay lại Danh Mục 26 Chỉ Số", use_container_width=False):
@@ -127,8 +130,8 @@ else:
         st.header(f"📘 Bước 1: Tổng Quan & Biểu Hiện Của {current_key} Index")
         
         if client and not st.session_state.ai_intro:
-            with st.spinner(f"Chuyên gia AI đang phân tích chuyên sâu chỉ số {current_name}..."):
-                prompt = f"Viết một bài tổng quan ngắn gọn về chỉ số {current_name}. Bao gồm các mục: 1. Định nghĩa khoa học. 2. Tầm quan trọng trong cuộc sống/sự nghiệp. 3. Ba biểu hiện rõ nét của người đạt điểm cao và ba biểu hiện của người điểm thấp ở chỉ số này. Định dạng Markdown rõ ràng, dễ nhìn."
+            with st.spinner(f"Chuyên gia AI đang phân tích chuyên sâu chỉ số {current_key} ({current_name})..."):
+                prompt = f"Viết một bài tổng quan ngắn gọn về chỉ số {current_key} đại diện cho năng lực {current_name}. Bao gồm các mục: 1. Định nghĩa khoa học. 2. Tầm quan trọng trong cuộc sống/sự nghiệp. 3. Ba biểu hiện rõ nét của người đạt điểm cao và ba biểu hiện của người điểm thấp ở chỉ số này. Định dạng Markdown rõ ràng, dễ nhìn."
                 st.session_state.ai_intro = generate_ai_content(prompt)
                 
         if st.session_state.ai_intro:
@@ -149,7 +152,7 @@ else:
         if client and not st.session_state.ai_questions:
             with st.spinner("AI đang thiết lập bộ câu hỏi tình huống ngẫu nhiên dành riêng cho bạn..."):
                 prompt = f"""
-                Tạo 3 câu hỏi trắc nghiệm tình huống thực tế khác nhau để đo lường cụ thể mức độ của chỉ số {current_name}. 
+                Tạo 3 câu hỏi trắc nghiệm tình huống thực tế khác nhau để đo lường cụ thể mức độ của chỉ số {current_key} ({current_name}). 
                 Trả về kết quả dưới dạng cấu trúc JSON chính xác là một danh sách các đối tượng, mỗi đối tượng gồm:
                 {{"question": "Mô tả một tình huống giả định thực tế đòi hỏi chỉ số này...", "options": {{"1": "Phương án xử lý tương ứng mức 1 điểm (Thấp)", "2": "Phương án tương ứng mức 2 điểm", "3": "Phương án tương ứng mức 3 điểm", "4": "Phương án tương ứng mức 4 điểm", "5": "Phương án tương ứng mức 5 điểm (Xuất sắc)"}}}}
                 Lưu ý: Chỉ trả về chuỗi văn bản JSON hợp lệ, tuyệt đối không kèm dấu nháy ngược markdown hay lời giải thích ngoài lề.
@@ -206,6 +209,19 @@ else:
         progress_ratio = float(score) / float(max_score)
         st.progress(progress_ratio)
         
-        # GIẢI PHÁP ĐỘT PHÁ: Tính toán text thông báo phẳng để tránh hoàn toàn khối lệnh rẽ nhánh gây lỗi lề
+        # Tính toán văn bản xếp hạng theo cấu trúc phẳng an toàn không lỗi thụt lề
         status_text = f"🚀 Xếp loại: Mức độ {current_key} Index Xuất sắc (Bậc thầy năng lực)"
         is_low = score <= (max_score * 0.4)
+        is_mid = score > (max_score * 0.4) and score <= (max_score * 0.8)
+        
+        if is_low:
+            status_text = f"⚠️ Xếp loại: Mức độ {current_key} Index cơ bản (Cần chú trọng nâng cấp)"
+        if is_mid:
+            status_text = f"⚡ Xếp loại: Mức độ {current_key} Index Khá tốt (Còn không gian phát triển)"
+            
+        # Hiển thị kết quả bằng ô thông báo
+        st.info(status_text)
+        st.write("")
+        
+        if client and not st.session_state.ai_advice:
+            with st.spinner("AI đang lên chiến lược hành động cá nhân hóa dành riêng cho bạn..."):
