@@ -96,7 +96,6 @@ if st.session_state.selected_key is None:
             item_idx = row_idx + col_idx
             if item_idx < len(keys_list):
                 key = keys_list[item_idx]
-                full_name = INDICATORS[key]
                 
                 # Hiển thị nút bấm cho từng chỉ số
                 with cols[col_idx]:
@@ -201,14 +200,15 @@ else:
         score = st.session_state.get('total_score', 0)
         max_score = st.session_state.get('max_score', 15)
         
-        # Sửa triệt để lỗi SyntaxError bằng mảng cố định an toàn
+        # Biểu đồ Gauge Chart đã được cấu hình đóng ngoặc chuẩn xác tuyệt đối
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
             value = score,
-            domain = {'x': [0, 1], 'y': [0, 1]},
+            domain = {'x':, 'y': [0, 1]},
             title = {'text': f"Thang điểm định vị {current_key} Index", 'font': {'size': 18}},
             gauge = {
                 'axis': {'range': [0, max_score], 'tickwidth': 1},
                 'bar': {'color': "#1f77b4"},
                 'bgcolor': "white",
                 'borderwidth': 2,
+                'bordercolor': "gray",
