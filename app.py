@@ -78,14 +78,14 @@ def generate_ai_content(prompt, json_mode=False):
         return None
 
 # ==========================================================
-# GIAO DIỆN CHÍNH: LƯỚI 26 Ô HIỂN THỊ ĐẦY ĐỦ TÊN CHỈ SỐ
+# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỮ CÁI TỪ A ĐẾN Z
 # ==========================================================
 if st.session_state.selected_key is None:
     st.title("🏆 Trung Tâm Đánh Giá Toàn Diện 26 Chỉ Số Năng Lực")
     st.write("Chọn một chỉ số bất kỳ bên dưới để khám phá lý thuyết và làm bài đánh giá cá nhân hóa từ AI:")
     st.write("")
 
-    # Chia lưới thành 2 cột lớn để hiển thị trọn vẹn tên tiếng Anh của chỉ số [2]
+    # Chia lưới thành 2 cột lớn để hiển thị trọn vẹn tên tiếng Anh của chỉ số
     num_columns = 2
     keys_list = list(INDICATORS.keys())
     
@@ -130,9 +130,9 @@ else:
         st.header(f"📘 Bước 1: Tổng Quan & Biểu Hiện Của {current_key} Index")
         
         if client and not st.session_state.ai_intro:
-            with st.spinner(f"Chuyên gia AI đang phân tích chuyên sâu chỉ số {current_key} ({current_name})..."):
-                prompt = f"Viết một bài tổng quan ngắn gọn về chỉ số {current_key} đại diện cho năng lực {current_name}. Bao gồm các mục: 1. Định nghĩa khoa học. 2. Tầm quan trọng trong cuộc sống/sự nghiệp. 3. Ba biểu hiện rõ nét của người đạt điểm cao và ba biểu hiện của người điểm thấp ở chỉ số này. Định dạng Markdown rõ ràng, dễ nhìn."
-                st.session_state.ai_intro = generate_ai_content(prompt)
+            st.info("Chuyên gia AI đang phân tích chuyên sâu chỉ số... Vui lòng đợi trong giây lát.")
+            prompt = f"Viết một bài tổng quan ngắn gọn về chỉ số {current_key} đại diện cho năng lực {current_name}. Bao gồm các mục: 1. Định nghĩa khoa học. 2. Tầm quan trọng trong cuộc sống/sự nghiệp. 3. Ba biểu hiện rõ nét của người đạt điểm cao và ba biểu hiện của người điểm thấp ở chỉ số này. Định dạng Markdown rõ ràng, dễ nhìn."
+            st.session_state.ai_intro = generate_ai_content(prompt)
                 
         if st.session_state.ai_intro:
             st.markdown(st.session_state.ai_intro)
@@ -150,19 +150,19 @@ else:
         st.write("Hãy chọn phương án phản ánh chính xác nhất xu hướng hành vi thực tế của bạn:")
         
         if client and not st.session_state.ai_questions:
-            with st.spinner("AI đang thiết lập bộ câu hỏi tình huống ngẫu nhiên dành riêng cho bạn..."):
-                prompt = f"""
-                Tạo 3 câu hỏi trắc nghiệm tình huống thực tế khác nhau để đo lường cụ thể mức độ của chỉ số {current_key} ({current_name}). 
-                Trả về kết quả dưới dạng cấu trúc JSON chính xác là một danh sách các đối tượng, mỗi đối tượng gồm:
-                {{"question": "Mô tả một tình huống giả định thực tế đòi hỏi chỉ số này...", "options": {{"1": "Phương án xử lý tương ứng mức 1 điểm (Thấp)", "2": "Phương án tương ứng mức 2 điểm", "3": "Phương án tương ứng mức 3 điểm", "4": "Phương án tương ứng mức 4 điểm", "5": "Phương án tương ứng mức 5 điểm (Xuất sắc)"}}}}
-                Lưu ý: Chỉ trả về chuỗi văn bản JSON hợp lệ, tuyệt đối không kèm dấu nháy ngược markdown hay lời giải thích ngoài lề.
-                """
-                raw_json = generate_ai_content(prompt, json_mode=True)
-                if raw_json:
-                    try:
-                        st.session_state.ai_questions = json.loads(raw_json)
-                    except:
-                        st.error("Hệ thống nhận diện sai cấu trúc JSON từ AI. Vui lòng bấm làm mới ở cuối trang.")
+            st.info("AI đang thiết lập bộ câu hỏi tình huống ngẫu nhiên... Vui lòng đợi trong giây lát.")
+            prompt = f"""
+            Tạo 3 câu hỏi trắc nghiệm tình huống thực tế khác nhau để đo lường cụ thể mức độ của chỉ số {current_key} ({current_name}). 
+            Trả về kết quả dưới dạng cấu trúc JSON chính xác là một danh sách các đối tượng, mỗi đối tượng gồm:
+            {{"question": "Mô tả một tình huống giả định thực tế đòi hỏi chỉ số này...", "options": {{"1": "Phương án xử lý tương ứng mức 1 điểm (Thấp)", "2": "Phương án tương ứng mức 2 điểm", "3": "Phương án tương ứng mức 3 điểm", "4": "Phương án tương ứng mức 4 điểm", "5": "Phương án tương ứng mức 5 điểm (Xuất sắc)"}}}}
+            Lưu ý: Chỉ trả về chuỗi văn bản JSON hợp lệ, tuyệt đối không kèm dấu nháy ngược markdown hay lời giải thích ngoài lề.
+            """
+            raw_json = generate_ai_content(prompt, json_mode=True)
+            if raw_json:
+                try:
+                    st.session_state.ai_questions = json.loads(raw_json)
+                except:
+                    st.error("Hệ thống nhận diện sai cấu trúc JSON từ AI. Vui lòng bấm làm mới ở cuối trang.")
 
         if st.session_state.ai_questions:
             score = 0
@@ -209,7 +209,7 @@ else:
         progress_ratio = float(score) / float(max_score)
         st.progress(progress_ratio)
         
-        # Tính toán văn bản xếp hạng theo cấu trúc phẳng an toàn không lỗi thụt lề
+        # Văn bản xếp hạng phẳng an toàn tuyệt đối không lỗi thụt lề
         status_text = f"🚀 Xếp loại: Mức độ {current_key} Index Xuất sắc (Bậc thầy năng lực)"
         is_low = score <= (max_score * 0.4)
         is_mid = score > (max_score * 0.4) and score <= (max_score * 0.8)
@@ -224,4 +224,4 @@ else:
         st.write("")
         
         if client and not st.session_state.ai_advice:
-            with st.spinner("AI đang lên chiến lược hành động cá nhân hóa dành riêng cho bạn..."):
+            st.info("AI đang lên chiến lược hành động cá nhân hóa dành riêng cho bạn... Vui lòng đợi trong giây lát.")
