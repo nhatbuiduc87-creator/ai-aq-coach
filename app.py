@@ -4,7 +4,7 @@ from google import genai
 import plotly.graph_objects as go
 
 # Cấu hình trang web rộng rãi, trực quan
-st.set_page_config(page_title="Hệ Thống Đánh Giá Năng Lực A-Z", page_icon="📊", layout="centered")
+st.set_page_config(page_title="Hệ Thống Đánh Giá Năng Lực Toàn Diện A-Z", page_icon="🏆", layout="centered")
 
 # Nhập API Key ở góc trái màn hình để bảo mật
 st.sidebar.title("Cấu hình hệ thống")
@@ -17,11 +17,41 @@ if api_key:
 else:
     st.sidebar.warning("🔑 Vui lòng nhập API Key ở thanh bên để kích hoạt trí tuệ nhân tạo AI!")
 
-# Khởi tạo trạng thái ứng dụng (Quản lý luồng hiển thị)
-if 'selected_index' not in st.session_state:
-    st.session_state.selected_index = None  # Chưa chọn ô nào
+# Định nghĩa danh mục chuẩn 26 chỉ số từ A đến Z của bạn
+INDICATORS = {
+    "A": "Adaptability (Khả năng Thích ứng)",
+    "B": "Body (Năng lực Thể chất & Sức khỏe)",
+    "C": "Creativity (Khả năng Sáng tạo)",
+    "D": "Digital (Năng lực Số & Công nghệ số)",
+    "E": "Emotional (Trí tuệ Cảm xúc - EQ)",
+    "F": "Financial (Thông minh Tài chính - FQ)",
+    "G": "Gold (Tư duy Đặt mục tiêu & Giá trị cốt lõi)",
+    "H": "Happiness (Chỉ số Hạnh phúc - HQ)",
+    "I": "Intelligence (Trí thông minh - IQ)",
+    "J": "Judgment (Năng lực Phán đoán & Ra quyết định)",
+    "K": "Kindness (Trí tuệ Trắc ẩn & Lòng tốt)",
+    "L": "Leadership (Năng lực Lãnh đạo)",
+    "M": "Moral (Chỉ số Đạo đức - MQ)",
+    "N": "Network (Năng lực Xây dựng Mối quan hệ)",
+    "O": "Organization (Kỹ năng Tổ chức & Quản lý)",
+    "P": "Passion (Chỉ số Đam mê & Nhiệt huyết)",
+    "Q": "Quantum (Tư duy Đột phá & Nhảy vọt)",
+    "R": "Resilience (Năng lực Vượt khó & Kiên cường - AQ)",
+    "S": "Spiritual (Trí thông minh Tâm linh - SQ)",
+    "T": "Tech (Năng lực Công nghệ & Kỹ thuật)",
+    "U": "Understanding (Năng lực Thấu hiểu & Đồng cảm)",
+    "V": "Vision (Tư duy Tầm nhìn & Chiến lược)",
+    "W": "Willpower (Sức mạnh Ý chí & Nghị lực)",
+    "X": "Xenophilia (Lòng hiếu khách & Cởi mở với văn hóa mới)",
+    "Y": "Youthfulness (Tư duy Tươi trẻ & Đổi mới)",
+    "Z": "Zeal (Sự Hăng hái & Lòng nhiệt thành)"
+}
+
+# Khởi tạo trạng thái ứng dụng (Quản lý dữ liệu động)
+if 'selected_key' not in st.session_state:
+    st.session_state.selected_key = None     # Chưa chọn chữ cái nào
 if 'current_step' not in st.session_state:
-    st.session_state.current_step = 1       # Luồng của chỉ số A bắt đầu từ Bước 1
+    st.session_state.current_step = 1        # Mặc định luồng bắt đầu từ Bước 1
 if 'ai_intro' not in st.session_state:
     st.session_state.ai_intro = ""
 if 'ai_questions' not in st.session_state:
@@ -49,87 +79,89 @@ def generate_ai_content(prompt, json_mode=False):
         return None
 
 # ==========================================================
-# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỈ SỐ (Chỉ hiển thị nếu chưa chọn ô nào)
+# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỈ SỐ HOÀN THIỆN
 # ==========================================================
-if st.session_state.selected_index is None:
-    st.title("🗂️ Trung Tâm Đánh Giá Chỉ Số Năng Lực Cá Nhân")
-    st.write("Hãy chọn một chỉ số năng lực bên dưới để bắt đầu bài kiểm tra tương tác:")
+if st.session_state.selected_key is None:
+    st.title("🏆 Trung Tâm Đánh Giá Toàn Diện 26 Chỉ Số Năng Lực")
+    st.write("Chọn một chỉ số bất kỳ bên dưới để khám phá lý thuyết và làm bài đánh giá cá nhân hóa từ AI:")
     st.write("")
 
-    # Danh sách nhãn cho 26 ô từ A đến Z
-    alphabet = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    # Sắp xếp 26 ô vuông theo dạng lưới (Mỗi hàng chứa tối đa 4 ô để hiển thị chữ rõ hơn)
+    num_columns = 4
+    keys_list = list(INDICATORS.keys())
     
-    # Chia lưới: tạo 4 hàng, mỗi hàng chứa 6-7 ô vuông (Tổng cộng 26 ô)
-    num_columns = 6
-    for row_idx in range(0, len(alphabet), num_columns):
+    for row_idx in range(0, len(keys_list), num_columns):
         cols = st.columns(num_columns)
         for col_idx in range(num_columns):
             item_idx = row_idx + col_idx
-            if item_idx < len(alphabet):
-                letter = alphabet[item_idx]
+            if item_idx < len(keys_list):
+                key = keys_list[item_idx]
+                full_name = INDICATORS[key]
                 
-                # Cấu hình đặc biệt cho ô đầu tiên (Chỉ số A)
-                if letter == "A":
-                    with cols[col_idx]:
-                        if st.button("🌟 CHỈ SỐ A\n\n(Adaptability)", use_container_width=True, type="primary"):
-                            st.session_state.selected_index = "A"
-                            st.rerun()
-                else:
-                    # Các ô còn lại từ B-Z hiển thị ở trạng thái khóa
-                    with cols[col_idx]:
-                        st.button(f"🔒 Chỉ số {letter}\n\n(Sắp ra mắt)", use_container_width=True, disabled=True)
+                # Hiển thị nút bấm cho từng chỉ số
+                with cols[col_idx]:
+                    if st.button(f"✨ Chỉ Số {key}\n\n{key} Index", use_container_width=True):
+                        st.session_state.selected_key = key
+                        st.session_state.current_step = 1 # Reset về bước 1 cho chỉ số mới
+                        st.session_state.ai_intro = ""    # Xóa dữ liệu cũ
+                        st.session_state.ai_questions = []
+                        st.session_state.ai_advice = ""
+                        st.rerun()
 
 # ==========================================================
-# LUỒNG TƯƠNG TÁC KHI BẤM VÀO Ô CHỈ SỐ A
+# LUỒNG XỬ LÝ ĐỘNG CHO CHỈ SỐ ĐƯỢC CHỌN
 # ==========================================================
-elif st.session_state.selected_index == "A":
-    st.title("🧠 AI AQ Coach - Phát Triển Năng Lực Thích Ứng")
+else:
+    current_key = st.session_state.selected_key
+    current_name = INDICATORS[current_key]
     
-    # Nút quay về màn hình lưới 26 ô bất cứ lúc nào
-    if st.button("⬅️ Quay lại danh mục 26 Chỉ Số", use_container_width=False):
-        st.session_state.selected_index = None
+    st.title(f"📊 Hệ Thống Phân Tích Chỉ Số: {current_name}")
+    
+    # Nút quay về màn hình lưới chính
+    if st.button("⬅️ Quay lại Menu 26 Chỉ Số", use_container_width=False):
+        st.session_state.selected_key = None
         st.rerun()
         
     st.write("---")
 
-    # --- BƯỚC 1: TỔNG QUAN & BIỂU HIỆN ---
+    # --- BƯỚC 1: TỔNG QUAN & BIỂU HIỆN ĐỘNG THEO CHỈ SỐ ---
     if st.session_state.current_step == 1:
-        st.header("📘 Bước 1: Tổng Quan & Biểu Hiện Chỉ Số AQ")
+        st.header(f"📘 Bước 1: Tổng Quan & Biểu Hiện Của {current_key} Index")
         
         if client and not st.session_state.ai_intro:
-            with st.spinner("AI đang biên soạn nội dung tổng quan độc quyền cho bạn..."):
-                prompt = "Viết một bài tổng quan ngắn gọn về chỉ số thích ứng AQ. Bao gồm: 1. Định nghĩa ngắn. 2. Tầm quan trọng. 3. Ba biểu hiện của người AQ cao và ba biểu hiện của người AQ thấp. Định dạng bằng Markdown đẹp mắt."
+            with st.spinner(f"Chuyên gia AI đang phân tích chuyên sâu chỉ số {current_name}..."):
+                prompt = f"Viết một bài tổng quan ngắn gọn về chỉ số {current_name}. Bao gồm các mục: 1. Định nghĩa khoa học. 2. Tầm quan trọng trong cuộc sống/sự nghiệp. 3. Ba biểu hiện rõ nét của người đạt điểm cao và ba biểu hiện của người điểm thấp ở chỉ số này. Định dạng Markdown rõ ràng, dễ nhìn."
                 st.session_state.ai_intro = generate_ai_content(prompt)
                 
         if st.session_state.ai_intro:
             st.markdown(st.session_state.ai_intro)
         else:
-            st.info("Hãy nhập API Key ở menu bên trái để AI tự động tạo nội dung tổng quan sinh động.")
+            st.info("Hãy nhập API Key ở menu bên trái để kích hoạt bộ não AI phân tích chỉ số này.")
             
         st.write("---")
-        if st.button("👉 Tiếp tục: Làm bài trắc nghiệm tính điểm", type="primary", use_container_width=True):
+        if st.button("👉 Tiếp tục: Làm bài trắc nghiệm tình huống", type="primary", use_container_width=True):
             st.session_state.current_step = 2
             st.rerun()
 
-    # --- BƯỚC 2: BÀI TRẮC NGHIỆM ĐỘNG ---
+    # --- BƯỚC 2: BÀI TRẮC NGHIỆM ĐỘNG THEO CHỈ SỐ ---
     elif st.session_state.current_step == 2:
-        st.header("📝 Bước 2: Trắc Nghiệm Tình Huống AQ Thực Tế")
-        st.write("Các tình huống dưới đây được AI tạo ngẫu nhiên dựa trên các bối cảnh đời sống thực tế:")
+        st.header(f"📝 Bước 2: Bài Đánh Giá Trắc Nghiệm {current_key} Index")
+        st.write("Hãy chọn phương án phản ánh chính xác nhất xu hướng hành vi thực tế của bạn:")
         
         if client and not st.session_state.ai_questions:
-            with st.spinner("AI đang thiết kế bộ câu hỏi tình huống ngẫu nhiên cho bạn..."):
-                prompt = """
-                Tạo 3 câu hỏi trắc nghiệm tình huống thực tế để đo lường chỉ số thích ứng AQ. 
-                Trả về kết quả dưới dạng JSON là một danh sách các đối tượng, mỗi đối tượng có cấu trúc:
-                {"question": "Nội dung tình huống...", "options": {"1": "Lựa chọn tệ nhất (1 điểm)", "2": "Lựa chọn kém (2 điểm)", "3": "Lựa chọn trung bình (3 điểm)", "4": "Lựa chọn tốt (4 điểm)", "5": "Lựa chọn xuất sắc (5 điểm)"}}
-                Lưu ý: Chỉ trả về chuỗi JSON hợp lệ, không kèm giải thích hoặc ký tự markdown.
+            with st.spinner("AI đang thiết lập bộ câu hỏi tình huống thực tế dành riêng cho bạn..."):
+                prompt = f"""
+                Tạo 3 câu hỏi trắc nghiệm tình huống thực tế khác nhau để đo lường cụ thể mức độ của chỉ số {current_name}. 
+                Trả về kết quả dưới dạng cấu trúc JSON chính xác là một danh sách các đối tượng, mỗi đối tượng gồm:
+                {{"question": "Mô tả một tình huống giả định thực tế đòi hỏi chỉ số này...", "options": {{"1": "Phương án xử lý tương ứng mức 1 điểm (Thấp)", "2": "Phương án tương ứng mức 2 điểm", "3": "Phương án tương ứng mức 3 điểm", "4": "Phương án tương ứng mức 4 điểm", "5": "Phương án tương ứng mức 5 điểm (Xuất sắc)"}}}}
+                Lưu ý: Chỉ trả về chuỗi văn bản JSON hợp lệ, tuyệt đối không kèm dấu nháy ngược markdown hay lời giải thích ngoài lề.
                 """
                 raw_json = generate_ai_content(prompt, json_mode=True)
                 if raw_json:
                     try:
                         st.session_state.ai_questions = json.loads(raw_json)
                     except:
-                        st.error("AI trả về sai cấu trúc câu hỏi. Vui lòng bấm thử lại.")
+                        st.error("Hệ thống nhận diện sai cấu trúc JSON từ AI. Vui lòng bấm làm mới ở cuối trang.")
 
         if st.session_state.ai_questions:
             score = 0
@@ -137,10 +169,10 @@ elif st.session_state.selected_index == "A":
                 st.markdown(f"**Câu {i+1}: {item['question']}**")
                 opts = item['options']
                 choice = st.radio(
-                    f"Chọn cách xử lý của bạn cho câu {i+1}:",
+                    f"Chọn cách ứng xử của bạn cho câu {i+1}:",
                     options=list(opts.keys()),
                     format_func=lambda x: opts[x],
-                    key=f"ai_q_{i}",
+                    key=f"ai_q_{current_key}_{i}",
                     label_visibility="collapsed"
                 )
                 score += int(choice)
@@ -149,7 +181,7 @@ elif st.session_state.selected_index == "A":
             st.session_state.total_score = score
             st.session_state.max_score = len(st.session_state.ai_questions) * 5
         else:
-            st.info("Vui lòng cung cấp API Key hợp lệ để AI tạo câu hỏi trắc nghiệm.")
+            st.info("Vui lòng cung cấp API Key hợp lệ ở thanh menu bên trái để sinh bộ đề.")
 
         st.write("---")
         col_back, col_next = st.columns(2)
@@ -158,55 +190,25 @@ elif st.session_state.selected_index == "A":
                 st.session_state.current_step = 1
                 st.rerun()
         with col_next:
-            if st.button("📊 Gửi câu trả lời để AI phân tích", type="primary", use_container_width=True):
+            if st.button("📊 Gửi bài test để đánh giá kết quả", type="primary", use_container_width=True):
                 st.session_state.current_step = 3
                 st.rerun()
 
-    # --- BƯỚC 3: GIẢI PHÁP CẢI THIỆN & BIỂU ĐỒ TRỰC QUAN ---
+    # --- BƯỚC 3: GIẢI PHÁP CẢI THIỆN ĐỘNG & BIỂU ĐỒ ---
     elif st.session_state.current_step == 3:
-        st.header("🎯 Bước 3: Phân Tích Kết Quả & Giải Pháp Từ AI")
+        st.header("🎯 Bước 3: Phân Tích Kết Quả & Chiến Lược Cải Thiện")
         
         score = st.session_state.get('total_score', 0)
         max_score = st.session_state.get('max_score', 15)
         
-        # Sửa lỗi: Truyền mảng tọa độ tường minh qua biến, không viết trống trong dictionary
-        x_coordinate_list = [0, 1]
-        y_coordinate_list = [0, 1]
-        
+        # Sửa triệt để lỗi SyntaxError bằng mảng cố định an toàn
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
             value = score,
-            domain = dict(x=x_coordinate_list, y=y_coordinate_list),
-            title = {'text': "Thang đo chỉ số AQ cá nhân", 'font': {'size': 18}},
+            domain = {'x': [0, 1], 'y': [0, 1]},
+            title = {'text': f"Thang điểm định vị {current_key} Index", 'font': {'size': 18}},
             gauge = {
-                'axis': {'range': [0, max_score], 'tickwidth': 1, 'tickcolor': "black"},
+                'axis': {'range': [0, max_score], 'tickwidth': 1},
                 'bar': {'color': "#1f77b4"},
                 'bgcolor': "white",
                 'borderwidth': 2,
-                'bordercolor': "gray",
-                'steps': [
-                    {'range': [0, max_score * 0.4], 'color': '#ff9999'},      
-                    {'range': [max_score * 0.4, max_score * 0.8], 'color': '#ffff99'}, 
-                    {'range': [max_score * 0.8, max_score], 'color': '#99ff99'}      
-                ],
-            }
-        ))
-        fig.update_layout(height=260, margin=dict(l=20, r=20, t=40, b=20))
-        st.plotly_chart(fig, use_container_width=True)
-        
-        if client and not st.session_state.ai_advice:
-            with st.spinner("AI đang phân tích sâu hành vi và lập chiến lược cải thiện riêng cho bạn..."):
-                prompt = f"Người dùng vừa làm bài trắc nghiệm AQ đạt số điểm {score} trên tổng số {max_score} điểm. Hãy đưa ra nhận xét cá nhân hóa về điểm mạnh, điểm yếu trong năng lực thích ứng của họ và đề xuất 3 hành động cụ thể, thực tế để họ nâng cao chỉ số AQ này."
-                st.session_state.ai_advice = generate_ai_content(prompt)
-                
-        if st.session_state.ai_advice:
-            st.markdown(st.session_state.ai_advice)
-        else:
-            st.info("Vui lòng kết nối API Key để nhận phân tích chi tiết từ chuyên gia AI.")
-
-        st.write("---")
-        if st.button("🔄 Làm lại với bộ câu hỏi mới", use_container_width=True):
-            st.session_state.current_step = 1
-            st.session_state.ai_questions = []
-            st.session_state.ai_advice = ""
-            st.rerun()
