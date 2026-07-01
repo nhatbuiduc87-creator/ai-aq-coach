@@ -169,13 +169,14 @@ elif st.session_state.selected_index == "A":
         score = st.session_state.get('total_score', 0)
         max_score = st.session_state.get('max_score', 15)
         
-        # Định nghĩa vùng hiển thị biểu đồ an toàn không lỗi cú pháp
-        chart_domain = {"x":, "y":}
+        # Sửa lỗi: Truyền mảng tọa độ tường minh qua biến, không viết trống trong dictionary
+        x_coordinate_list = [0, 1]
+        y_coordinate_list = [0, 1]
         
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
             value = score,
-            domain = chart_domain,
+            domain = dict(x=x_coordinate_list, y=y_coordinate_list),
             title = {'text': "Thang đo chỉ số AQ cá nhân", 'font': {'size': 18}},
             gauge = {
                 'axis': {'range': [0, max_score], 'tickwidth': 1, 'tickcolor': "black"},
