@@ -100,8 +100,8 @@ if st.session_state.selected_key is None:
                 with cols[col_idx]:
                     if st.button(f"✨ Chỉ Số {key}\n\n{key} Index", use_container_width=True):
                         st.session_state.selected_key = key
-                        st.session_state.current_step = 1 # Đưa về bước 1
-                        st.session_state.ai_intro = ""    # Reset dữ liệu cũ
+                        st.session_state.current_step = 1 
+                        st.session_state.ai_intro = ""    
                         st.session_state.ai_questions = []
                         st.session_state.ai_advice = ""
                         st.rerun()
@@ -206,7 +206,6 @@ else:
         progress_ratio = float(score) / float(max_score)
         st.progress(progress_ratio)
         
-        # SỬA LỖI THỤT LỀ CHUẨN XÁC: Phân loại vùng điểm bằng Alert Boxes
-        if score <= (max_score * 0.4):
-            st.error(f"⚠️ Xếp loại: Mức độ {current_key} Index cơ bản (Cần chú trọng nâng cấp)")
-        elif score <= (max_score * 0.8):
+        # GIẢI PHÁP ĐỘT PHÁ: Tính toán text thông báo phẳng để tránh hoàn toàn khối lệnh rẽ nhánh gây lỗi lề
+        status_text = f"🚀 Xếp loại: Mức độ {current_key} Index Xuất sắc (Bậc thầy năng lực)"
+        is_low = score <= (max_score * 0.4)
