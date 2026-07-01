@@ -133,11 +133,16 @@ elif st.session_state.current_step == 3:
     score = st.session_state.get('total_score', 0)
     max_score = st.session_state.get('max_score', 15)
     
+    # Định nghĩa vùng hiển thị biểu đồ an toàn không chứa lỗi cú pháp
+    x_range = [0, 1]
+    y_range = [0, 1]
+    chart_domain = dict(x=x_range, y=y_range)
+    
     # Tạo biểu đồ Gauge Chart trực quan hiển thị kết quả điểm số
     fig = go.Figure(go.Indicator(
         mode = "gauge+number",
         value = score,
-        domain = {'x':, 'y': [0, 1]},
+        domain = chart_domain,
         title = {'text': "Thang đo chỉ số AQ cá nhân", 'font': {'size': 18}},
         gauge = {
             'axis': {'range': [0, max_score], 'tickwidth': 1, 'tickcolor': "black"},
