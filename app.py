@@ -78,7 +78,7 @@ def generate_ai_content(prompt, json_mode=False):
         return None
 
 # ==========================================================
-# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỬ CÁI TỪ A ĐẾN Z
+# GIAO DIỆN CHÍNH: LƯỚI 26 Ô CHỮ CÁI TỪ A ĐẾN Z
 # ==========================================================
 if st.session_state.selected_key is None:
     st.title("🏆 Trung Tâm Đánh Giá Toàn Diện 26 Chỉ Số Năng Lực")
@@ -206,7 +206,7 @@ else:
         progress_ratio = float(score) / float(max_score)
         st.progress(progress_ratio)
         
-        # Phân loại vùng điểm bằng Alert Boxes có sẵn của Streamlit
+        # SỬA LỖI THỤT LỀ CHUẨN XÁC: Phân loại vùng điểm bằng Alert Boxes
         if score <= (max_score * 0.4):
             st.error(f"⚠️ Xếp loại: Mức độ {current_key} Index cơ bản (Cần chú trọng nâng cấp)")
         elif score <= (max_score * 0.8):
